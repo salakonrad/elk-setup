@@ -1,0 +1,8 @@
+---
+- name: Install jdk8
+  yum:
+    name:
+      - java-1.8.0-openjdk
+      - vim
+    state: installed
+  become: yes

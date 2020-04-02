@@ -1,0 +1,4 @@
+galaxy_info:
+  role_name: elk-setup
+  author: Konrad Sala
+  description: Elk setup role

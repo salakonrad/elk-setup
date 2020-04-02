@@ -1,0 +1,31 @@
+---
+- name: Add GPG key for elastic
+  rpm_key:
+    state: present
+    key: https://artifacts.elastic.co/GPG-KEY-elasticsearch
+  become: yes
+
+- name: Setup Elastic repo
+  copy:
+    src: elastic/elasticsearch.repo
+    dest: /etc/yum.repos.d/elasticsearch.repo
+  become: yes
+
+- name: Install elasticsearch
+  yum:
+    name: elasticsearch
+  become: yes
+
+- name: Uncomment network.host mode
+  replace:
+    path: /etc/elasticsearch/elasticsearch.yml
+    regexp: "#network.host: 192.168.0.1"
+    replace: "network.host: localhost"
+  become: yes
+
+- name: Start & enable elastic
+  systemd:
+    name: elasticsearch
+    state: started
+    enabled: yes
+  become: yes

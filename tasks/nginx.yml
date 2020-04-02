@@ -1,0 +1,37 @@
+---
+- name: Install tools for reverse proxy
+  yum:
+    name:
+      - epel-release
+      - openssl
+      - nginx
+    state: installed
+  become: yes
+
+- name: Nginx password
+  shell: echo "admin:$apr1$dmaIR3U6$fAiH.x.B..6sboj9qw9Zo0" > /etc/nginx/htpasswd.users
+  become: yes
+
+- name: Setup nginx main file
+  copy:
+    src: nginx/nginx.conf
+    dest: /etc/nginx/nginx.conf
+  become: yes
+
+- name: Setup reverse proxy for kibana
+  copy:
+    src: nginx/test.conf
+    dest: /etc/nginx/conf.d/test.conf
+  become: yes
+
+
+- name: Selinux
+  shell: setsebool httpd_can_network_connect 1 -P
+  become: yes
+
+- name: Start and Enable Nginx
+  systemd:
+    name: nginx
+    state: started
+    enabled: yes
+  become: yes

@@ -1,0 +1,28 @@
+---
+- name: Install filebeat
+  yum:
+    name: filebeat
+  become: yes
+
+- name: Filebeat config file
+  copy:
+    src: filebeat/filebeat.conf
+    dest: /etc/filebeat/filebeat.yml
+  become: yes
+
+- name: Enable system module for filebeat
+  shell: filebeat modules enable system
+  become: yes
+
+- name: Loading filebeat template
+  shell: sudo filebeat setup --template -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["localhost:9200"]'
+
+- name: Load dashboards for Kibana
+  shell: sudo filebeat setup -e -E output.logstash.enabled=false -E output.elasticsearch.hosts=['localhost:9200'] -E setup.kibana.host=localhost:5601
+
+- name: Start & enable filebeat
+  systemd:
+    name: filebeat
+    state: started
+    enabled: yes
+  become: yes

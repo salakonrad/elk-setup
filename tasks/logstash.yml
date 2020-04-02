@@ -1,0 +1,26 @@
+---
+- name: Install logstash
+  yum:
+    name: logstash
+  become: yes
+
+- name: Install Logstash config files
+  copy:
+    src: "{{item.src}}"
+    dest: "{{item.dest}}"
+  loop:
+    - {src: 'logstash/02-beats-input.conf' , dest: '/etc/logstash/conf.d/02-beats-input.conf'}
+    - {src: 'logstash/10-syslog-filter.conf' , dest: '/etc/logstash/conf.d/10-syslog-filter.conf'}
+    - {src: 'logstash/30-elasticsearch-output.conf' , dest: '/etc/logstash/conf.d/30-elasticsearch-output.conf'}
+  become: yes
+
+- name: Test Logstash config
+  shell: sudo -u logstash /usr/share/logstash/bin/logstash --path.settings /etc/logstash -t
+  become: yes
+
+- name: Start & enable logstash
+  systemd:
+    name: logstash
+    state: started
+    enabled: yes
+  become: yes
